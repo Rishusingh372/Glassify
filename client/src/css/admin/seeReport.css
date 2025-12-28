@@ -1,0 +1,143 @@
+.see-report-container {
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.report-header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.report-header h1 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.report-header p {
+    color: #7f8c8d;
+    margin: 0;
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 18px;
+    color: #3498db;
+}
+
+.no-reports {
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.no-reports h3 {
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.table-responsive {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.reports-table {
+    margin: 0;
+}
+
+.table-header {
+    background: #34495e;
+}
+
+.table-header th {
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 15px;
+}
+
+.reports-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+.comment-cell {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+/* Priority Badges */
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.priority-badge.high {
+    background: #e74c3c;
+    color: white;
+}
+
+.priority-badge.medium {
+    background: #f39c12;
+    color: white;
+}
+
+.priority-badge.low {
+    background: #27ae60;
+    color: white;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.not-started {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.assigned {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+/* Reassign Button */
+.reassign-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+}
+
+.reassign-btn:hover {
+    background: #2980b9;
+}

@@ -1,0 +1,162 @@
+.completed-task-container {
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 80vh;
+}
+
+.task-header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.task-header h1 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.task-header p {
+    color: #7f8c8d;
+    margin: 0;
+}
+
+.loading-container {
+    text-align: center;
+    padding: 50px;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.no-tasks-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.no-tasks h3 {
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.no-tasks p {
+    color: #7f8c8d;
+}
+
+.table-container {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.task-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.task-table th {
+    background: #34495e;
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.task-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.task-row:hover {
+    background: #f8f9fa;
+}
+
+.task-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.task-desc {
+    color: #7f8c8d;
+    max-width: 200px;
+}
+
+/* Priority Badges */
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.priority-badge.high {
+    background: #e74c3c;
+    color: white;
+}
+
+.priority-badge.medium {
+    background: #f39c12;
+    color: white;
+}
+
+.priority-badge.low {
+    background: #27ae60;
+    color: white;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-badge.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.not-started {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .task-table {
+        min-width: 800px;
+    }
+}
