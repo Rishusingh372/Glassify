@@ -1,104 +1,44 @@
 import { useState } from "react";
-import "../css/Login.css";
-import axios from "axios";
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { status } = useSelector(state => state.auth);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "email") {
-      setEmail(value);
-    } else if (name === "password") {
-      setPassword(value);
-    } else if (name === "role") {
-      setRole(value);
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(login({ email, password }))
+      .then(() => navigate("/"));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (role === "Admin") {
-      try {
-        const api = `${import.meta.env.VITE_BACKEND_URL}/admin/login`;
-        const response = await axios.post(api, { email, password });
-        toast.success(response.data.msg);
-
-        localStorage.setItem("admin", response.data.admin._id);
-        localStorage.setItem("adminemail", response.data.admin.email);
-
-        navigate("/admindashboard");
-      } catch (error) {
-        toast.error(error.response?.data?.msg || "Admin login failed");
-      }
-    } else {
-      try {
-        const api = `${import.meta.env.VITE_BACKEND_URL}/employee/login`;
-        const response = await axios.post(api, { email, password });
-        toast.success(response.data.msg);
-
-        const id = response.data.employee._id;
-        const empname = response.data.empname || response.data.employee.name;
-        
-        // Store employee data in localStorage
-        localStorage.setItem("empid", id);
-        localStorage.setItem("empname", empname);
-        localStorage.setItem("empemail", response.data.employee.email);
-        localStorage.setItem("empdesignation", response.data.employee.designation);
-
-        navigate(`/empdashboard/${id}`);
-      } catch (error) {
-        toast.error(error.response?.data?.msg || "Employee login failed");
-      }
-    }
-  }
-
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h2>Task Manager Login</h2>
+    <form onSubmit={handleSubmit}>
+      <h2>User Login</h2>
 
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={email}
-            onChange={handleChange}
-            required
-          />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
 
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={handleChange}
-            required
-          />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
 
-          <label>Role</label>
-          <select
-            name="role"
-            value={role}
-            onChange={handleChange}
-            required
-          >
-            <option value="" disabled>Select Role</option>
-            <option value="Admin">Admin</option>
-            <option value="Employee">Employee</option>
-          </select>
-
-          <button type="submit">Login</button>
-        </form>
-      </div>
-    </div>
+      <button type="submit">
+        {status === "loading" ? "Logging in..." : "Login"}
+      </button>
+    </form>
   );
-}
+};
 
 export default Login;
