@@ -1,12 +1,20 @@
+
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../features/auth/authSlice";
+import { useEffect } from "react";
+import { calculateTotals } from "../../features/cart/cartSlice";
 
 const Header = () => {
   const { user } = useSelector(state => state.auth);
-  const { items } = useSelector(state => state.cart);
+  const { totalItems } = useSelector(state => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Calculate cart totals on component mount
+  useEffect(() => {
+    dispatch(calculateTotals());
+  }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -14,69 +22,106 @@ const Header = () => {
   };
 
   return (
-    <header style={styles.header}>
-      {/* Logo */}
-      <Link to="/" style={styles.logo}>
-        👓 EyeGlasses
-      </Link>
+    <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2 mb-4 md:mb-0">
+            <span className="text-3xl">👓</span>
+            <div>
+              <h1 className="text-2xl font-bold">EyeGlasses</h1>
+              <p className="text-xs text-blue-100">Premium Eyewear</p>
+            </div>
+          </Link>
 
-      {/* Navigation */}
-      <nav style={styles.nav}>
-        <NavLink to="/" style={styles.link}>Home</NavLink>
-        <NavLink to="/cart" style={styles.link}>
-          Cart ({items.length})
-        </NavLink>
-
-        {user ? (
-          <>
-            <NavLink to="/orders" style={styles.link}>
-              My Orders
+          {/* Navigation */}
+          <nav className="flex items-center space-x-4">
+            <NavLink 
+              to="/" 
+              className={({ isActive }) => 
+                `px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                  isActive 
+                    ? 'bg-blue-700 text-white' 
+                    : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                }`
+              }
+            >
+              Home
             </NavLink>
-            <button onClick={handleLogout} style={styles.button}>
-              Logout
-            </button>
-          </>
-        ) : (
-          <>
-            <NavLink to="/login" style={styles.link}>Login</NavLink>
-            <NavLink to="/signup" style={styles.link}>Signup</NavLink>
-          </>
-        )}
-      </nav>
+            
+            <NavLink 
+              to="/cart" 
+              className={({ isActive }) => 
+                `px-3 py-2 rounded-md text-sm font-medium transition duration-200 flex items-center space-x-1 ${
+                  isActive 
+                    ? 'bg-blue-700 text-white' 
+                    : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                }`
+              }
+            >
+              <span>Cart</span>
+              {totalItems > 0 && (
+                <span className="bg-yellow-400 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">
+                  {totalItems}
+                </span>
+              )}
+            </NavLink>
+
+            {user ? (
+              <>
+                <NavLink 
+                  to="/orders" 
+                  className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                      isActive 
+                        ? 'bg-blue-700 text-white' 
+                        : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                    }`
+                  }
+                >
+                  My Orders
+                </NavLink>
+                <button 
+                  onClick={handleLogout}
+                  className="px-4 py-2 bg-white text-blue-600 font-medium rounded-md hover:bg-gray-100 transition duration-200"
+                >
+                  Logout
+                </button>
+                <div className="hidden md:flex items-center">
+                  <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                    <span className="text-sm font-bold">
+                      {user.name?.charAt(0) || 'U'}
+                    </span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <NavLink 
+                  to="/login" 
+                  className={({ isActive }) => 
+                    `px-3 py-2 rounded-md text-sm font-medium transition duration-200 ${
+                      isActive 
+                        ? 'bg-blue-700 text-white' 
+                        : 'text-blue-100 hover:bg-blue-700 hover:text-white'
+                    }`
+                  }
+                >
+                  Login
+                </NavLink>
+                <NavLink 
+                  to="/signup" 
+                  className="px-4 py-2 bg-white text-blue-600 font-medium rounded-md hover:bg-gray-100 transition duration-200"
+                >
+                  Signup
+                </NavLink>
+              </>
+            )}
+          </nav>
+        </div>
+      </div>
     </header>
   );
-};
-
-const styles = {
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "12px 20px",
-    background: "#0d6efd",
-    color: "#fff",
-  },
-  logo: {
-    color: "#fff",
-    fontSize: "22px",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-  nav: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-  },
-  link: {
-    color: "#fff",
-    textDecoration: "none",
-  },
-  button: {
-    background: "#fff",
-    color: "#0d6efd",
-    border: "none",
-    padding: "6px 12px",
-    cursor: "pointer",
-  },
 };
 
 export default Header;

@@ -1,77 +1,65 @@
-const AdminModel = require("../models/adminModel");
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../cloudinary');
-const ProductModel = require("../models/productModel");
-// Set up Cloudinary storage for multer
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'product_images', // folder name Cloudinary account
-        format: async (req, file) => 'jpg', // supports promises as well
-        public_id: (req, file) => Date.now() + '-' + file.originalname,
-    },
-});
 
-const upload = multer({ storage: storage }).array('images', 10); //image size
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
+export const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-
-const adminLogin = async (req, res) => {
-    const { adminid, password } = req.body;
-    const admin = await AdminModel.findOne({ adminid });
+    // Check if admin exists
+    const admin = await User.findOne({ email });
     if (!admin) {
-        res.status(404).send({ msg: "Invalid Admin ID" });
+      return res.status(401).json({ 
+        success: false, 
+        message: "Admin not found" 
+      });
     }
 
-    if (admin.password != password) {
-        res.status(401).send({ msg: "Invalid Password" });
+    // Check if user has admin role
+    if (admin.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Access denied. Admin only." 
+      });
     }
 
-    res.status(200).send({ admin, msg: "Login Succesfully" });
-}
+    // Check password
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        success: false, 
+        message: "Invalid password" 
+      });
+    }
 
-const addProduct = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            return res.status(500).send("Error uploading files: " + err.message);
-        }
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: admin._id, 
+        email: admin.email,
+        role: admin.role,
+        name: admin.name 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-        try {
-            const { name, category, description, price } = req.body;
-            console.log(req.files);
-            const imageUrls = req.files.map(file => file.path);
-            const product = await ProductModel.create({
-                name: name,
-                category: category,
-                description: description,
-                price: price,
-                defaultImage: imageUrls[0],
-                images: imageUrls
-            })
-            /*
-            const newProduct = new ProductModel({
-                name: Pname,
-                brand: Pbrand,
-                price: Pprice,
-                description: Pdescription,
-                category: Pcategory,
-                tags: Ptags,
-                images: imageUrls,
-                defaultImage: imageUrls[0] 
-            });
-
-            await newProduct.save();
-             */
-            res.status(200).send("Data saved successfully!");
-        
-        } catch (error) {
-            res.status(500).send("Error saving data: " + error.message);
-        }
+    res.json({
+      success: true,
+      token,
+      admin: { 
+        id: admin._id, 
+        email: admin.email,
+        name: admin.name,
+        role: admin.role 
+      },
     });
-}
-
-module.exports = {
-    adminLogin,
-    addProduct
-}
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error" 
+    });
+  }
+};

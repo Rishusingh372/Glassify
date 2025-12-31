@@ -41,9 +41,13 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+       <Route path="/product/:id" element={<ProductDetails />} />
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
+
+     
+
     </Routes>
   );
 };
