@@ -19,15 +19,29 @@ const orderSlice = createSlice({
   name: "order",
   initialState: {
     orders: [],
-    status: "idle",
+    loading: false,
   },
   extraReducers: (builder) => {
     builder
+      .addCase(createOrder.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(createOrder.fulfilled, (state, action) => {
-        state.orders.push(action.payload);
+        state.loading = false;
+        state.orders.push(action.payload.order);
+      })
+      .addCase(createOrder.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(fetchOrders.pending, (state) => {
+        state.loading = true;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
+        state.loading = false;
+        state.orders = action.payload.orders;
+      })
+      .addCase(fetchOrders.rejected, (state) => {
+        state.loading = false;
       });
   },
 });

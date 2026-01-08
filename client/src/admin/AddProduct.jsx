@@ -8,7 +8,9 @@ const AddProduct = () => {
     price: "",
     brand: "",
     gender: "",
+    description: "",
   });
+  const [images, setImages] = useState([]);
 
   const navigate = useNavigate();
 
@@ -16,12 +18,30 @@ const AddProduct = () => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    setImages(Array.from(e.target.files));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.post("/admin/add-product", product, {
-      headers: { Authorization: localStorage.getItem("adminToken") }
-    });
-    navigate("/admin/products");
+    try {
+      const formData = new FormData();
+      formData.append('name', product.name);
+      formData.append('price', product.price);
+      formData.append('brand', product.brand);
+      formData.append('gender', product.gender);
+      formData.append('description', product.description);
+      images.forEach(image => formData.append('images', image));
+
+      await api.post("/admin/add-product", formData, {
+        headers: { 
+          Authorization: localStorage.getItem("adminToken")
+        }
+      });
+      navigate("/admin/products");
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error adding product');
+    }
   };
 
   return (
@@ -31,36 +51,72 @@ const AddProduct = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <input
+            type="text"
             name="name"
             placeholder="Name"
+            value={product.name}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
         
         <div>
           <input
+            type="number"
             name="price"
             placeholder="Price"
+            value={product.price}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+            min="0"
+            step="0.01"
           />
         </div>
         
         <div>
           <input
+            type="text"
             name="brand"
             placeholder="Brand"
+            value={product.brand}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
           />
         </div>
         
         <div>
           <input
+            type="text"
             name="gender"
-            placeholder="Gender"
+            placeholder="Gender (Men/Women/Unisex/Kids)"
+            value={product.gender}
             onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <textarea
+            name="description"
+            placeholder="Description (optional)"
+            value={product.description}
+            onChange={handleChange}
+            rows="3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <input
+            type="file"
+            name="images"
+            multiple
+            accept="image/*"
+            onChange={handleImageChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

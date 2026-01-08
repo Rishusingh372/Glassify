@@ -14,9 +14,7 @@ const Checkout = () => {
   const { token, user } = useSelector(state => state.auth);
 
   const subtotal = items.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
-  const tax = subtotal * 0.18;
-  const total = subtotal + tax;
-  const totalWithTax = Math.round(total);
+  const totalAmount = Math.round(subtotal);
 
   const handlePayment = async () => {
     if (paymentMethod === "razorpay") {
@@ -30,7 +28,7 @@ const Checkout = () => {
     setLoading(true);
     try {
       // 1️⃣ Backend se Razorpay order create
-      const order = await createPaymentOrder(totalWithTax, token);
+      const order = await createPaymentOrder(totalAmount, token);
 
       // 2️⃣ Razorpay options
       const options = {
@@ -45,7 +43,7 @@ const Checkout = () => {
           dispatch(createOrder({
             orderData: {
               items,
-              totalAmount: totalWithTax,
+              totalAmount: totalAmount,
               paymentId: response.razorpay_payment_id,
               paymentMethod: "Razorpay",
             },
@@ -78,7 +76,7 @@ const Checkout = () => {
     dispatch(createOrder({
       orderData: {
         items,
-        totalAmount: totalWithTax,
+        totalAmount: totalAmount,
         paymentMethod: "COD",
       },
       token,
@@ -214,15 +212,11 @@ const Checkout = () => {
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium">Free</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax (18%)</span>
-                <span className="font-medium">₹{tax.toFixed(2)}</span>
-              </div>
 
               <div className="border-t pt-4">
                 <div className="flex justify-between text-xl font-bold">
                   <span>Total Amount</span>
-                  <span className="text-blue-600">₹{totalWithTax}</span>
+                  <span className="text-blue-600">₹{totalAmount}</span>
                 </div>
               </div>
             </div>

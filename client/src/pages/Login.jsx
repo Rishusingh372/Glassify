@@ -1,21 +1,48 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../features/auth/authSlice";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, Shield, User } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { status, error } = useSelector(state => state.auth);
+  const { status, error, role } = useSelector(state => state.auth);
+
+  // Check if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
+    
+    if (token && storedRole) {
+      if (storedRole === 'admin') {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [navigate]);
+
+  // Redirect after successful login
+  useEffect(() => {
+    if (status === "success" && role) {
+      if (role === 'admin') {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [status, role, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(login({ email, password }))
-      .then(() => navigate("/"));
+    dispatch(login({ email, password, isAdmin: isAdminLogin }));
   };
 
   return (
@@ -23,12 +50,49 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+            {isAdminLogin ? (
+              <Shield size={32} className="text-white" />
+            ) : (
+              <User size={32} className="text-white" />
+            )}
           </div>
-          <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <h2 className="text-3xl font-bold text-gray-800">
+            {isAdminLogin ? "Admin Login" : "User Login"}
+          </h2>
+          <p className="mt-2 text-gray-600">
+            {isAdminLogin 
+              ? "Access the admin dashboard" 
+              : "Sign in to your account"}
+          </p>
+          
+          {/* Toggle Switch */}
+          <div className="mt-6 flex items-center justify-center space-x-4">
+            <button
+              type="button"
+              onClick={() => setIsAdminLogin(false)}
+              className={`px-4 py-2 rounded-lg font-medium transition duration-200 ${
+                !isAdminLogin 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <User size={18} className="inline mr-2" />
+              User
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setIsAdminLogin(true)}
+              className={`px-4 py-2 rounded-lg font-medium transition duration-200 ${
+                isAdminLogin 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <Shield size={18} className="inline mr-2" />
+              Admin
+            </button>
+          </div>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -91,15 +155,23 @@ const Login = () => {
               </label>
             </div>
             
-            <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-800">
-              Forgot password?
-            </a>
+            {!isAdminLogin && (
+              <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                Forgot password?
+              </a>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={status === "loading"}
-            className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg font-medium text-white transition duration-200 ${status === "loading" ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'}`}
+            className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg font-medium text-white transition duration-200 ${
+              status === "loading" 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : isAdminLogin
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+            }`}
           >
             {status === "loading" ? (
               <>
@@ -109,20 +181,33 @@ const Login = () => {
             ) : (
               <>
                 <LogIn size={20} className="mr-2" />
-                Sign In
+                {isAdminLogin ? "Admin Sign In" : "User Sign In"}
               </>
             )}
           </button>
           
-          <div className="text-center mt-6">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
-              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-800">
-                Create an account
-              </Link>
+          {!isAdminLogin && (
+            <div className="text-center mt-6">
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-800">
+                  Create an account
+                </Link>
+              </p>
+            </div>
+          )}
+        </form>
+        
+        {/* Admin Note */}
+        {isAdminLogin && (
+          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <Shield size={16} className="inline mr-1" />
+              <strong>Note:</strong> Only users with admin privileges can access this panel.
+              Contact administrator if you don't have admin access.
             </p>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );

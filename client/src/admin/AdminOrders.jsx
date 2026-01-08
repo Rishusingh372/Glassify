@@ -8,7 +8,10 @@ const AdminOrders = () => {
   useEffect(() => {
     api.get("/admin/orders", {
       headers: { Authorization: localStorage.getItem("adminToken") }
-    }).then(res => setOrders(res.data));
+    }).then(res => setOrders(res.data.orders || [])).catch(err => {
+      console.error("Error fetching orders:", err);
+      setOrders([]);
+    });
   }, []);
 
   return (
