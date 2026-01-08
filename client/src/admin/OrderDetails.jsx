@@ -5,12 +5,30 @@ import api from "../services/api";
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     api.get(`/admin/orders/${id}`, {
       headers: { Authorization: localStorage.getItem("adminToken") },
-    }).then(res => setOrder(res.data));
+    }).then(res => setOrder(res.data.order));
   }, [id]);
+
+  const updateStatus = async (newStatus) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.put(`/admin/orders/${id}`, { status: newStatus }, {
+        headers: { Authorization: localStorage.getItem("adminToken") },
+      });
+      setOrder(res.data.order);
+    } catch (err) {
+      setError("Failed to update order status");
+      console.error("Update status error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!order) return (
     <div className="flex justify-center items-center h-64">
@@ -31,7 +49,7 @@ const OrderDetails = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">User</p>
-              <p className="font-medium">{order.user}</p>
+              <p className="font-medium">{order.user ? order.user.name : 'Unknown User'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Total Amount</p>
@@ -40,14 +58,37 @@ const OrderDetails = () => {
             <div>
               <p className="text-sm text-gray-600">Status</p>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                order.status === 'completed' 
-                  ? 'bg-green-100 text-green-800' 
+                order.status === 'success'
+                  ? 'bg-green-100 text-green-800'
+                  : order.status === 'reject'
+                  ? 'bg-red-100 text-red-800'
+                  : order.status === 'completed'
+                  ? 'bg-green-100 text-green-800'
                   : order.status === 'pending'
                   ? 'bg-yellow-100 text-yellow-800'
                   : 'bg-blue-100 text-blue-800'
               }`}>
                 {order.status}
               </span>
+              {order.status === 'pending' && (
+                <div className="mt-2 space-x-2">
+                  <button
+                    onClick={() => updateStatus('success')}
+                    disabled={loading}
+                    className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Updating...' : 'Mark as Success'}
+                  </button>
+                  <button
+                    onClick={() => updateStatus('reject')}
+                    disabled={loading}
+                    className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Updating...' : 'Mark as Reject'}
+                  </button>
+                </div>
+              )}
+              {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
             </div>
           </div>
         </div>
