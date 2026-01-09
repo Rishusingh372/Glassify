@@ -14,6 +14,7 @@ const productSlice = createSlice({
     products: [],
     filtered: [],
     status: "idle",
+    error: null,
   },
   reducers: {
     filterByBrand: (state, action) => {
@@ -39,11 +40,17 @@ const productSlice = createSlice({
     builder
       .addCase(getProducts.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       .addCase(getProducts.fulfilled, (state, action) => {
-        state.products = action.payload.products;
-        state.filtered = action.payload.products;
+        state.products = action.payload;
+        state.filtered = action.payload;
         state.status = "success";
+        state.error = null;
+      })
+      .addCase(getProducts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
       });
   },
 });

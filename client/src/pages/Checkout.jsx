@@ -13,7 +13,7 @@ const Checkout = () => {
   const { items } = useSelector(state => state.cart);
   const { token, user } = useSelector(state => state.auth);
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * (item.qty || 1), 0);
   const totalAmount = Math.round(subtotal);
 
   const handlePayment = async () => {
@@ -193,10 +193,10 @@ const Checkout = () => {
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-800">{item.name}</h4>
                     <p className="text-sm text-gray-600">{item.brand}</p>
-                    <p className="text-sm">Qty: {item.quantity || 1}</p>
+                    <p className="text-sm">Qty: {item.qty || 1}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-gray-800">₹{item.price * (item.quantity || 1)}</p>
+                    <p className="font-bold text-gray-800">₹{item.price * (item.qty || 1)}</p>
                   </div>
                 </div>
               ))}

@@ -58,6 +58,9 @@ const AdminProducts = () => {
       setEditProduct(null);
     } catch (error) {
       console.error('Error updating product:', error);
+      if (error.response && error.response.data) {
+        console.error('Server error details:', error.response.data);
+      }
     } finally {
       setLoading(false);
     }

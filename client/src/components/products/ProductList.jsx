@@ -2,7 +2,8 @@ import { useSelector } from "react-redux";
 import ProductCard from "./ProductCard";
 
 const ProductList = () => {
-  const { filtered, status } = useSelector(state => state.product);
+  const productState = useSelector(state => state.product);
+  const { filtered = [], status = 'idle', error } = productState || {};
 
   if (status === "loading") return (
     <div className="flex justify-center items-center h-96">
@@ -10,6 +11,18 @@ const ProductList = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
         <p className="mt-4 text-gray-600">Loading products...</p>
       </div>
+    </div>
+  );
+
+  if (status === "failed") return (
+    <div className="text-center py-12">
+      <div className="text-red-400 mb-4">
+        <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-semibold text-gray-700 mb-2">Failed to load products</h3>
+      <p className="text-gray-500">{error || "Something went wrong. Please try again later."}</p>
     </div>
   );
 

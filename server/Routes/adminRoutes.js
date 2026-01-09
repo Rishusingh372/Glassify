@@ -16,10 +16,24 @@ router.post("/login", adminLogin);
 router.get("/products", adminProtect, getProducts);
 
 // Add product
-router.post("/add-product", adminProtect, upload.array("images", 5), createProduct);
+router.post("/products", adminProtect, upload.fields([
+  { name: 'images', maxCount: 5 },
+  { name: 'name' },
+  { name: 'price' },
+  { name: 'brand' },
+  { name: 'gender' },
+  { name: 'description' }
+]), createProduct);
 
 // Update product
-router.put("/products/:id", adminProtect, upload.array("images", 5), updateProduct);
+router.put("/products/:id", adminProtect, upload.fields([
+  { name: 'images', maxCount: 5 },
+  { name: 'name' },
+  { name: 'price' },
+  { name: 'brand' },
+  { name: 'gender' },
+  { name: 'description' }
+]), updateProduct);
 
 // Delete product
 router.delete("/products/:id", adminProtect, deleteProduct);
@@ -95,6 +109,7 @@ router.get("/dashboard", adminProtect, async (req, res) => {
   try {
     const totalProducts = await Product.countDocuments();
     const totalOrders = await Order.countDocuments();
+    const pendingOrders = await Order.countDocuments({ status: 'Pending' });
     const totalRevenue = await Order.aggregate([
       {
         $group: {
@@ -114,6 +129,7 @@ router.get("/dashboard", adminProtect, async (req, res) => {
       stats: {
         totalProducts,
         totalOrders,
+        pendingOrders,
         totalRevenue: totalRevenue[0]?.total || 0
       },
       recentOrders

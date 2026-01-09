@@ -7,86 +7,92 @@ const initialState = {
   totalItems: 0,
 };
 
+const calculate = (items) => {
+  const totalItems = items.reduce(
+    (sum, item) => sum + item.qty,
+    0
+  );
+
+  const totalAmount = items.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  );
+
+  return { totalItems, totalAmount };
+};
+
 const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
     addToCart: (state, action) => {
       const newItem = action.payload;
-      const existingItem = state.items.find(item => item._id === newItem._id);
-      
+      const existingItem = state.items.find(
+        item => item._id === newItem._id
+      );
+
       if (existingItem) {
-        existingItem.qty = (existingItem.qty || 1) + 1;
+        existingItem.qty += 1;
       } else {
         state.items.push({ ...newItem, qty: 1 });
       }
-      
-      // Update totals
-      state.totalItems = state.items.reduce((total, item) => total + (item.qty || 1), 0);
-      state.totalAmount = state.items.reduce(
-        (total, item) => total + (item.price * (item.qty || 1)), 
-        0
-      );
-      
+
+      const totals = calculate(state.items);
+      state.totalItems = totals.totalItems;
+      state.totalAmount = totals.totalAmount;
+
       localStorage.setItem("cart", JSON.stringify(state.items));
     },
-    
+
     removeFromCart: (state, action) => {
-      const itemId = action.payload;
-      state.items = state.items.filter(item => item._id !== itemId);
-      
-      // Update totals
-      state.totalItems = state.items.reduce((total, item) => total + (item.qty || 1), 0);
-      state.totalAmount = state.items.reduce(
-        (total, item) => total + (item.price * (item.qty || 1)), 
-        0
+      state.items = state.items.filter(
+        item => item._id !== action.payload
       );
-      
+
+      const totals = calculate(state.items);
+      state.totalItems = totals.totalItems;
+      state.totalAmount = totals.totalAmount;
+
       localStorage.setItem("cart", JSON.stringify(state.items));
     },
-    
+
     updateQuantity: (state, action) => {
-      const { id, qty } = action.payload;
+      const { id, quantity } = action.payload;
       const item = state.items.find(item => item._id === id);
-      
+
       if (item) {
-        item.qty = Math.max(1, qty); // Ensure quantity is at least 1
+        item.quantity = Math.max(1, quantity);
       }
-      
-      // Update totals
-      state.totalItems = state.items.reduce((total, item) => total + (item.qty || 1), 0);
-      state.totalAmount = state.items.reduce(
-        (total, item) => total + (item.price * (item.qty || 1)), 
-        0
-      );
-      
+
+      const totals = calculate(state.items);
+      state.totalItems = totals.totalItems;
+      state.totalAmount = totals.totalAmount;
+
       localStorage.setItem("cart", JSON.stringify(state.items));
     },
-    
+
     clearCart: (state) => {
       state.items = [];
-      state.totalAmount = 0;
       state.totalItems = 0;
+      state.totalAmount = 0;
       localStorage.removeItem("cart");
     },
-    
-    // Initialize cart totals when app loads
+
+    // ✅ MISSING FUNCTION — NOW ADDED
     calculateTotals: (state) => {
-      state.totalItems = state.items.reduce((total, item) => total + (item.qty || 1), 0);
-      state.totalAmount = state.items.reduce(
-        (total, item) => total + (item.price * (item.qty || 1)), 
-        0
-      );
-    }
+      const totals = calculate(state.items);
+      state.totalItems = totals.totalItems;
+      state.totalAmount = totals.totalAmount;
+    },
   },
 });
 
-export const { 
-  addToCart, 
-  removeFromCart, 
-  updateQuantity, 
-  clearCart, 
-  calculateTotals 
+export const {
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+  clearCart,
+  calculateTotals,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

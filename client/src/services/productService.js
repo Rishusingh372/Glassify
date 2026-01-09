@@ -5,7 +5,7 @@ import api from "./api";
  */
 export const fetchProducts = async () => {
   const response = await api.get("/products");
-  return response.data;
+  return response.data.products;
 };
 
 /**
@@ -14,7 +14,7 @@ export const fetchProducts = async () => {
  */
 export const fetchProductById = async (id) => {
   const response = await api.get(`/products/${id}`);
-  return response.data;
+  return response.data.product;
 };
 
 /**
@@ -24,9 +24,9 @@ export const fetchProductById = async (id) => {
  */
 export const updateProduct = async (id, formData) => {
   const response = await api.put(`/admin/products/${id}`, formData, {
-    headers: { 
+    headers: {
       'Content-Type': 'multipart/form-data',
-      'Authorization': localStorage.getItem("adminToken")
+      'Authorization': `Bearer ${localStorage.getItem("adminToken")}`
     }
   });
   return response.data;
@@ -38,9 +38,9 @@ export const updateProduct = async (id, formData) => {
  */
 export const createProduct = async (formData) => {
   const response = await api.post("/admin/products", formData, {
-    headers: { 
+    headers: {
       'Content-Type': 'multipart/form-data',
-      'Authorization': localStorage.getItem("adminToken")
+      'Authorization': `Bearer ${localStorage.getItem("adminToken")}`
     }
   });
   return response.data;
